@@ -31,6 +31,21 @@ namespace NoteFinder.Helpers
                 "major9" => ChordDefinitions.MajorNine,
                 "minor9" => ChordDefinitions.MinorNine,
                 "9" => ChordDefinitions.Nine,
+                "minor11" => ChordDefinitions.Minor11,
+                "minor13" => ChordDefinitions.Minor13,
+                "augmented7" => ChordDefinitions.Augmented7,
+                "augmentedmajor7" => ChordDefinitions.AugmentedMajor7,
+                "minormajor7" => ChordDefinitions.MinorMajor7,
+                "7sus4" => ChordDefinitions.SevenSus4,
+                "9sus4" => ChordDefinitions.NineSus4,
+                "13sus4" => ChordDefinitions.ThirteenSus4,
+                "7#5" => ChordDefinitions.SevenSharp5,
+                "7b9" => ChordDefinitions.SevenFlat9,
+                "7#11" => ChordDefinitions.SevenSharp11,
+                "13b9" => ChordDefinitions.ThirteenFlat9,
+                "majoradd9" => ChordDefinitions.MajorAdd9,
+                "7#9" => ChordDefinitions.Dominant7Sharp9, // Hendrix chord
+                "hendrix" => ChordDefinitions.Dominant7Sharp9, // Alternative name for 7#9
                 _ => throw new ArgumentException("Invalid chord name")
             };
         }

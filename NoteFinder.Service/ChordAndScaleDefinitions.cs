@@ -208,6 +208,117 @@ namespace NoteFinder.Service.Definitions
                 return new IInterval[1] { m_Intervals.Perfect5th };
             }
         }
+
+        public static IInterval[] Minor11
+        {
+            get
+            {
+                return new IInterval[5] { m_Intervals.Minor3rd, m_Intervals.Perfect5th,
+                m_Intervals.Minor7th, m_Intervals.Major2nd, m_Intervals.Perfect4th };
+            }
+        }
+
+        public static IInterval[] Minor13
+        {
+            get
+            {
+                return new IInterval[6] { m_Intervals.Minor3rd, m_Intervals.Perfect5th,
+                m_Intervals.Minor7th, m_Intervals.Major2nd, m_Intervals.Perfect4th,
+                m_Intervals.Major6th };
+            }
+        }
+
+        public static IInterval[] Augmented7
+        {
+            get
+            {
+                return new IInterval[3] { m_Intervals.Major3rd, m_Intervals.Minor6th,
+                m_Intervals.Minor7th };
+            }
+        }
+
+        public static IInterval[] AugmentedMajor7
+        {
+            get
+            {
+                return new IInterval[3] { m_Intervals.Major3rd, m_Intervals.Minor6th,
+                m_Intervals.Major7th };
+            }
+        }
+
+        public static IInterval[] MinorMajor7
+        {
+            get
+            {
+                return new IInterval[3] { m_Intervals.Minor3rd, m_Intervals.Perfect5th,
+                m_Intervals.Major7th };
+            }
+        }
+
+        public static IInterval[] SevenSus4
+        {
+            get
+            {
+                return new IInterval[3] { m_Intervals.Perfect4th, m_Intervals.Perfect5th,
+                m_Intervals.Minor7th };
+            }
+        }
+
+        public static IInterval[] NineSus4
+        {
+            get
+            {
+                return new IInterval[4] { m_Intervals.Perfect4th, m_Intervals.Perfect5th,
+                m_Intervals.Minor7th, m_Intervals.Major2nd };
+            }
+        }
+
+        public static IInterval[] ThirteenSus4
+        {
+            get
+            {
+                return new IInterval[5] { m_Intervals.Perfect4th, m_Intervals.Perfect5th,
+                m_Intervals.Minor7th, m_Intervals.Major2nd, m_Intervals.Major6th };
+            }
+        }
+
+        public static IInterval[] SevenSharp5
+        {
+            get
+            {
+                return new IInterval[3] { m_Intervals.Major3rd, m_Intervals.Minor6th,
+                m_Intervals.Minor7th };
+            }
+        }
+
+        public static IInterval[] SevenFlat9
+        {
+            get
+            {
+                return new IInterval[4] { m_Intervals.Major3rd, m_Intervals.Perfect5th,
+                m_Intervals.Minor7th, m_Intervals.Minor2nd };
+            }
+        }
+
+        public static IInterval[] SevenSharp11
+        {
+            get
+            {
+                return new IInterval[4] { m_Intervals.Major3rd, m_Intervals.Perfect5th,
+                m_Intervals.Minor7th, m_Intervals.Tritone };
+            }
+        }
+
+        public static IInterval[] ThirteenFlat9
+        {
+            get
+            {
+                return new IInterval[6] { m_Intervals.Major3rd, m_Intervals.Perfect5th,
+                m_Intervals.Minor7th, m_Intervals.Minor2nd, m_Intervals.Perfect4th,
+                m_Intervals.Major6th };
+            }
+        }
+
     }
 
     public class Intervals
