@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\NoteFinder.ExternalInfo.Service\NoteFinder.ExternalInfo.Service.csproj" />
     <ProjectReference Include="..\NoteFinder.Interfaces\NoteFinder.Interfaces.csproj" />
     <ProjectReference Include="..\NoteFinder.Service\NoteFinder.Service.csproj" />
   </ItemGroup>
