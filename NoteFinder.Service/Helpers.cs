@@ -46,6 +46,8 @@ namespace NoteFinder.Helpers
                 "majoradd9" => ChordDefinitions.MajorAdd9,
                 "7#9" => ChordDefinitions.Dominant7Sharp9, // Hendrix chord
                 "hendrix" => ChordDefinitions.Dominant7Sharp9, // Alternative name for 7#9
+                "dominant7sharp9" => ChordDefinitions.Dominant7Sharp9,
+                "powerchord" => ChordDefinitions.PowerChord,
                 _ => throw new ArgumentException("Invalid chord name")
             };
         }
