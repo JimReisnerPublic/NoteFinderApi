@@ -53,7 +53,7 @@ app.MapGet("/api/scale/notes", ([FromQuery] string key, [FromQuery] string scale
     {
         IInterval[] scaleIntervals = DefinitionsHelper.GetScaleIntervals(scaleName);
         NoteCollection noteCollection = new NoteCollection(key.ToUpper(), scaleIntervals);
-        noteCollection.SetProperlyNamedNotes();
+       // noteCollection.SetProperlyNamedNotes();
 
         return Results.Ok(noteCollection);
     }
@@ -70,7 +70,7 @@ app.MapGet("/api/chord/notes", ([FromQuery] string key, [FromQuery] string chord
     {
         IInterval[] chordIntervals = DefinitionsHelper.GetChordIntervals(chordName);
         NoteCollection noteCollection = new NoteCollection(key.ToUpper(), chordIntervals);
-        noteCollection.SetProperlyNamedNotes();
+       // noteCollection.SetProperlyNamedNotes();
 
         return Results.Ok(noteCollection);
     }

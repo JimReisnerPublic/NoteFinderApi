@@ -20,7 +20,7 @@ namespace NoteFinder.Service
             m_ChromaticPosition = notePosition;
         }
 
-        public SingleNote(string noteName, byte notePosition, string flatName)
+        public SingleNote(string noteName, int notePosition, string flatName)
         {
             m_Note = noteName;
             m_ChromaticPosition = notePosition;
@@ -155,18 +155,10 @@ namespace NoteFinder.Service
     }
 
 
-    public class NoteCollection : INoteCollection
+    public class NoteCollection
     {
-        List<INoteAndInterval> m_NotesAndIntervals = new List<INoteAndInterval>();
-        Intervals m_Intervals = new Intervals();
-        ChromaticNotes m_ChromaticNotes = new ChromaticNotes();
-
-        public List<INoteAndInterval> NotesAndIntervals
-        {
-            get { return m_NotesAndIntervals; }
-            set { m_NotesAndIntervals = value; }
-        }
-
+        private List<NoteAndInterval> m_NotesAndIntervals = new List<NoteAndInterval>();
+        private ChromaticNotes m_ChromaticNotes = new ChromaticNotes();
 
         public NoteCollection(string key, IInterval[] intervals)
         {
@@ -185,124 +177,88 @@ namespace NoteFinder.Service
                 thisNoteAndInterval.Interval = thisInterval;
                 m_NotesAndIntervals.Add(thisNoteAndInterval);
             }
+
+            SetProperlyNamedNotes(key);
         }
 
-        //This assumes that the scale does not have a step beyond a M2
-        public NoteCollection(string key, string signature)
+        private string NormalizeToSharp(string note)
         {
+            var flatToSharp = new Dictionary<string, string>
+        {
+            {"Db", "C#"}, {"Eb", "D#"}, {"Gb", "F#"}, {"Ab", "G#"}, {"Bb", "A#"}
+        };
 
-            //TODO: Should I make this an array of characters?
-            //TODO: Exception if note T or s
-            //string[] sigSteps = Regex.Split(signature, string.Empty);
-            var sigSteps = signature.Select(x => new string(x, 1)).ToArray();
-            int root = 0;
-            int curInt = root;
-            List<int> intervalNumbers = new List<int>();
-            AddRootToNoteCollection(key);
-
-            foreach (string step in sigSteps)
-            {
-                if (step.ToLower() == "s")
-                {
-                    curInt += 1;
-                }
-                else if (step.ToLower() == "t")
-                {
-                    curInt += 2;
-                }
-                else
-                {
-                    throw new Exception("Each part of signature must be a 's' (semitone) or 'T' (Tone)");
-                }
-
-                intervalNumbers.Add(curInt);
-            }
-
-            foreach (int thisIntervalNum in intervalNumbers)
-            {
-                IInterval thisInterval =
-                    m_Intervals.IntervalList.Where(x => x.SemitonesFromRoot == thisIntervalNum).Single();
-
-                SingleNote thisNote = m_ChromaticNotes.ReturnInterval(key, thisInterval.SemitonesFromRoot);
-                NoteAndInterval thisNoteAndInterval = new NoteAndInterval();
-                thisNoteAndInterval.Note = thisNote;
-                thisNoteAndInterval.Interval = thisInterval;
-                m_NotesAndIntervals.Add(thisNoteAndInterval);
-            }
-
+            return flatToSharp.ContainsKey(note) ? flatToSharp[note] : note;
         }
-        public void SetProperlyNamedNotes()
+
+        private bool UseSharps(string key)
         {
-            string[] noteOrder = { "C", "D", "E", "F", "G", "A", "B" };
-            string previousNoteName = m_NotesAndIntervals[0].Note.Note;
+            string[] sharpKeys = { "G", "D", "A", "E", "B", "F#", "C#" };
+            return sharpKeys.Contains(key) || key.Contains("#");
+        }
+
+        public void SetProperlyNamedNotes(string key)
+        {
+            bool useFlats = key.Contains("b");
+            string[] noteOrder = useFlats
+                ? new[] { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" }
+                : new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+
+            int keyIndex = Array.IndexOf(noteOrder, key);
 
             for (int i = 0; i < m_NotesAndIntervals.Count; i++)
             {
                 var currentNote = m_NotesAndIntervals[i].Note;
-                string properNoteName = GetProperNoteName(currentNote, previousNoteName, noteOrder);
+                int noteIndex = (keyIndex + m_NotesAndIntervals[i].Interval.SemitonesFromRoot) % 12;
+                string properNoteName = noteOrder[noteIndex];
 
-                // Update the Note property with the properly named note
-                m_NotesAndIntervals[i].Note = new SingleNote(properNoteName, (byte)currentNote.ChromaticPosition, currentNote.FlatAlternativeName);
-
-                previousNoteName = properNoteName;
+                m_NotesAndIntervals[i].Note = new SingleNote(properNoteName, currentNote.ChromaticPosition, currentNote.FlatAlternativeName);
             }
         }
-        public List<string> GetProperlyNamedNotes()
+
+        private string GetProperNoteName(SingleNote note, string previousNoteName, string[] noteOrder, bool useSharps)
         {
-            List<string> properNotes = new List<string>();
-            string[] noteOrder = { "C", "D", "E", "F", "G", "A", "B" };
+            int previousIndex = Array.IndexOf(noteOrder, previousNoteName[0].ToString());
+            int currentIndex = (previousIndex + 1) % 7;
 
-            // Add the root note
-            properNotes.Add(m_NotesAndIntervals[0].Note.Note);
+            string baseName = noteOrder[currentIndex];
 
-            for (int i = 1; i < m_NotesAndIntervals.Count; i++)
+            if (note.ChromaticPosition != Array.IndexOf(noteOrder, baseName))
             {
-                var currentNote = m_NotesAndIntervals[i].Note;
-                string previousNoteName = properNotes[i - 1];
-                string properNoteName = GetProperNoteName(currentNote, previousNoteName, noteOrder);
-                properNotes.Add(properNoteName);
-            }
-
-            return properNotes;
-        }
-
-        private string GetProperNoteName(INote note, string previousNoteName, string[] noteOrder)
-        {
-            int previousIndex = Array.IndexOf(noteOrder, previousNoteName[0].ToString().ToUpper());
-            int currentIndex = Array.IndexOf(noteOrder, note.Note[0].ToString().ToUpper());
-            int distance = (currentIndex - previousIndex + 7) % 7;
-
-            // If the distance is 0 or 1, we prefer the next letter name
-            if (distance <= 1)
-            {
-                int nextLetterIndex = (previousIndex + 1) % 7;
-                string nextLetter = noteOrder[nextLetterIndex];
-
-                // If there's a flat alternative and it matches the next letter, use it
-                if (!string.IsNullOrEmpty(note.FlatAlternativeName) &&
-                    note.FlatAlternativeName[0].ToString().ToUpper() == nextLetter)
+                if (useSharps)
                 {
-                    return note.FlatAlternativeName;
+                    return baseName + "#";
                 }
-                // Otherwise, use the sharp name
-                return note.Note;
+                else
+                {
+                    int flatIndex = (currentIndex + 1) % 7;
+                    return noteOrder[flatIndex] + "b";
+                }
             }
-            // For larger intervals, prefer the original note name
-            else
-            {
-                return note.Note;
-            }
+
+            return baseName;
+        }
+
+        public List<NoteAndInterval> NotesAndIntervals
+        {
+            get { return m_NotesAndIntervals; }
         }
 
         private void AddRootToNoteCollection(string key)
         {
-            NoteAndInterval rootNoteAndIterval = new NoteAndInterval();
-            rootNoteAndIterval.Interval = m_Intervals.IntervalList.Where(x => x.SemitonesFromRoot == 0).Single();
-            rootNoteAndIterval.Note = m_ChromaticNotes.SingleNotes.Where(y => y.Note == key).Single();
-            m_NotesAndIntervals.Add(rootNoteAndIterval);
+            SingleNote rootNote = new SingleNote(key, 0, "");
+            SingleInterval rootInterval = new SingleInterval("Root", "I", 0);
+            NoteAndInterval rootNoteAndInterval = new NoteAndInterval();
+            rootNoteAndInterval.Note = rootNote;
+            rootNoteAndInterval.Interval = rootInterval;
+            m_NotesAndIntervals.Add(rootNoteAndInterval);
+        }
+
+        public List<string> GetProperlyNamedNotes()
+        {
+            return m_NotesAndIntervals.Select(ni => ni.Note.Note).ToList();
         }
     }
-
 
     public class ChromaticNotes
     {
@@ -322,63 +278,64 @@ namespace NoteFinder.Service
         private void InitializeList()
         {
             m_SingleNotes = new List<SingleNote>
-        {
-            new SingleNote("C", 1),
-            new SingleNote("C#", 2, "Db"),
-            new SingleNote("D", 3),
-            new SingleNote("D#", 4, "Eb"),
-            new SingleNote("E", 5),
-            new SingleNote("F", 6),
-            new SingleNote("F#", 7, "Gb"),
-            new SingleNote("G", 8),
-            new SingleNote("G#", 9, "Ab"),
-            new SingleNote("A", 10),
-            new SingleNote("A#", 11, "Bb"),
-            new SingleNote("B", 12)
-        };
-            //SingleNote singleNoteA = new SingleNote("A", 1);
-            //SingleNote singleNoteASharp = new SingleNote("A#", 2, "Bb");
-            //SingleNote singleNoteB = new SingleNote("B", 3);
-            //SingleNote singleNoteC = new SingleNote("C", 4);
-            //SingleNote singleNoteCSharp = new SingleNote("C#", 5, "Db");
-            //SingleNote singleNoteD = new SingleNote("D", 6);
-            //SingleNote singleNoteDSharp = new SingleNote("D#", 7, "Eb");
-            //SingleNote singleNoteE = new SingleNote("E", 8);
-            //SingleNote singleNoteF = new SingleNote("F", 9);
-            //SingleNote singleNoteFSharp = new SingleNote("F#", 10, "Gb");
-            //SingleNote singleNoteG = new SingleNote("G", 11);
-            //SingleNote singleNoteGSharp = new SingleNote("G#", 12, "Ab");
-
-            ////Generic lists are automatically in the order of insertion
-            //m_SingleNotes = new List<SingleNote>();
-            //m_SingleNotes.Add(singleNoteA);
-            //m_SingleNotes.Add(singleNoteASharp);
-            //m_SingleNotes.Add(singleNoteB);
-            //m_SingleNotes.Add(singleNoteC);
-            //m_SingleNotes.Add(singleNoteCSharp);
-            //m_SingleNotes.Add(singleNoteD);
-            //m_SingleNotes.Add(singleNoteDSharp);
-            //m_SingleNotes.Add(singleNoteE);
-            //m_SingleNotes.Add(singleNoteF);
-            //m_SingleNotes.Add(singleNoteFSharp);
-            //m_SingleNotes.Add(singleNoteG);
-            //m_SingleNotes.Add(singleNoteGSharp);
+            {
+                new SingleNote("C", 1),
+                new SingleNote("C#", 2, "Db"),
+                new SingleNote("D", 3),
+                new SingleNote("D#", 4, "Eb"),
+                new SingleNote("E", 5),
+                new SingleNote("F", 6),
+                new SingleNote("F#", 7, "Gb"),
+                new SingleNote("G", 8),
+                new SingleNote("G#", 9, "Ab"),
+                new SingleNote("A", 10),
+                new SingleNote("A#", 11, "Bb"),
+                new SingleNote("B", 12)
+            };
         }
 
         public SingleNote ReturnInterval(string rootNoteName, int interval)
         {
-            var rootNote = m_SingleNotes.Where(n => n.Note == rootNoteName).Single();
-
-            int destChromPosition = rootNote.ChromaticPosition + interval;
-
-            if (destChromPosition > 12)
+            var rootNote = m_SingleNotes.FirstOrDefault(n => n.Note == rootNoteName || n.FlatAlternativeName == rootNoteName);
+            if (rootNote == null)
             {
-                destChromPosition = destChromPosition - 12;
+                throw new ArgumentException($"Invalid root note: {rootNoteName}");
             }
 
-            var destinationNote = m_SingleNotes.Where(d => d.ChromaticPosition == destChromPosition).Single();
+            int destChromPosition = ((rootNote.ChromaticPosition - 1 + interval) % 12) + 1;
+
+            var destinationNote = m_SingleNotes.First(d => d.ChromaticPosition == destChromPosition);
 
             return destinationNote;
         }
+        //SingleNote singleNoteA = new SingleNote("A", 1);
+        //SingleNote singleNoteASharp = new SingleNote("A#", 2, "Bb");
+        //SingleNote singleNoteB = new SingleNote("B", 3);
+        //SingleNote singleNoteC = new SingleNote("C", 4);
+        //SingleNote singleNoteCSharp = new SingleNote("C#", 5, "Db");
+        //SingleNote singleNoteD = new SingleNote("D", 6);
+        //SingleNote singleNoteDSharp = new SingleNote("D#", 7, "Eb");
+        //SingleNote singleNoteE = new SingleNote("E", 8);
+        //SingleNote singleNoteF = new SingleNote("F", 9);
+        //SingleNote singleNoteFSharp = new SingleNote("F#", 10, "Gb");
+        //SingleNote singleNoteG = new SingleNote("G", 11);
+        //SingleNote singleNoteGSharp = new SingleNote("G#", 12, "Ab");
+
+        ////Generic lists are automatically in the order of insertion
+        //m_SingleNotes = new List<SingleNote>();
+        //m_SingleNotes.Add(singleNoteA);
+        //m_SingleNotes.Add(singleNoteASharp);
+        //m_SingleNotes.Add(singleNoteB);
+        //m_SingleNotes.Add(singleNoteC);
+        //m_SingleNotes.Add(singleNoteCSharp);
+        //m_SingleNotes.Add(singleNoteD);
+        //m_SingleNotes.Add(singleNoteDSharp);
+        //m_SingleNotes.Add(singleNoteE);
+        //m_SingleNotes.Add(singleNoteF);
+        //m_SingleNotes.Add(singleNoteFSharp);
+        //m_SingleNotes.Add(singleNoteG);
+        //m_SingleNotes.Add(singleNoteGSharp);
     }
+
+
 }
