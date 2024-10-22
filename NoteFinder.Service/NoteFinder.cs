@@ -1,4 +1,5 @@
-﻿using NoteFinder.Interfaces;
+﻿using NoteFinder.Helpers;
+using NoteFinder.Interfaces;
 using NoteFinder.Service.Definitions;
 
 namespace NoteFinder.Service
@@ -308,34 +309,7 @@ namespace NoteFinder.Service
 
             return destinationNote;
         }
-        //SingleNote singleNoteA = new SingleNote("A", 1);
-        //SingleNote singleNoteASharp = new SingleNote("A#", 2, "Bb");
-        //SingleNote singleNoteB = new SingleNote("B", 3);
-        //SingleNote singleNoteC = new SingleNote("C", 4);
-        //SingleNote singleNoteCSharp = new SingleNote("C#", 5, "Db");
-        //SingleNote singleNoteD = new SingleNote("D", 6);
-        //SingleNote singleNoteDSharp = new SingleNote("D#", 7, "Eb");
-        //SingleNote singleNoteE = new SingleNote("E", 8);
-        //SingleNote singleNoteF = new SingleNote("F", 9);
-        //SingleNote singleNoteFSharp = new SingleNote("F#", 10, "Gb");
-        //SingleNote singleNoteG = new SingleNote("G", 11);
-        //SingleNote singleNoteGSharp = new SingleNote("G#", 12, "Ab");
 
-        ////Generic lists are automatically in the order of insertion
-        //m_SingleNotes = new List<SingleNote>();
-        //m_SingleNotes.Add(singleNoteA);
-        //m_SingleNotes.Add(singleNoteASharp);
-        //m_SingleNotes.Add(singleNoteB);
-        //m_SingleNotes.Add(singleNoteC);
-        //m_SingleNotes.Add(singleNoteCSharp);
-        //m_SingleNotes.Add(singleNoteD);
-        //m_SingleNotes.Add(singleNoteDSharp);
-        //m_SingleNotes.Add(singleNoteE);
-        //m_SingleNotes.Add(singleNoteF);
-        //m_SingleNotes.Add(singleNoteFSharp);
-        //m_SingleNotes.Add(singleNoteG);
-        //m_SingleNotes.Add(singleNoteGSharp);
     }
-
 
 }
