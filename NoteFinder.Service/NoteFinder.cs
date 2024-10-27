@@ -185,11 +185,21 @@ namespace NoteFinder.Service
         private string NormalizeToSharp(string note)
         {
             var flatToSharp = new Dictionary<string, string>
-        {
-            {"Db", "C#"}, {"Eb", "D#"}, {"Gb", "F#"}, {"Ab", "G#"}, {"Bb", "A#"}
-        };
+            {
+                {"Db", "C#"}, {"Eb", "D#"}, {"Gb", "F#"}, {"Ab", "G#"}, {"Bb", "A#"}
+            };
 
             return flatToSharp.ContainsKey(note) ? flatToSharp[note] : note;
+        }
+
+        private string NormalizeToFlat(string note)
+        {
+            var sharpToFlat = new Dictionary<string, string>
+            {
+                {"C#", "Db"}, {"D#", "Eb"}, {"F#", "Gb"}, {"G#", "Ab"}, {"A#", "Bb"}
+            };
+
+            return sharpToFlat.ContainsKey(note) ? sharpToFlat[note] : note;
         }
 
         private bool UseSharps(string key)
@@ -198,23 +208,64 @@ namespace NoteFinder.Service
             return sharpKeys.Contains(key) || key.Contains("#");
         }
 
+        private static string CapitalizeFirstLetter(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return string.Empty;
+            }
+            return char.ToUpper(input[0]) + input.Substring(1);
+        }
         public void SetProperlyNamedNotes(string key)
         {
-            bool useFlats = key.Contains("b");
+            bool useFlats = ShouldUseFlats(key);
             string[] noteOrder = useFlats
                 ? new[] { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" }
                 : new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 
-            int keyIndex = Array.IndexOf(noteOrder, key);
+            // Normalize key to either sharp or flat as appropriate
+            string normalizedKey = useFlats ? NormalizeToFlat(key) : NormalizeToSharp(key);
+            int keyIndex = Array.IndexOf(noteOrder, normalizedKey);
+
+            if (keyIndex == -1)
+            {
+                throw new ArgumentException($"Invalid key: {key}");
+            }
 
             for (int i = 0; i < m_NotesAndIntervals.Count; i++)
             {
                 var currentNote = m_NotesAndIntervals[i].Note;
                 int noteIndex = (keyIndex + m_NotesAndIntervals[i].Interval.SemitonesFromRoot) % 12;
-                string properNoteName = noteOrder[noteIndex];
 
+                if (noteIndex < 0 || noteIndex >= noteOrder.Length)
+                {
+                    throw new IndexOutOfRangeException("Calculated note index is out of range.");
+                }
+
+                string properNoteName = noteOrder[noteIndex];
                 m_NotesAndIntervals[i].Note = new SingleNote(properNoteName, currentNote.ChromaticPosition, currentNote.FlatAlternativeName);
             }
+        }
+        private bool ShouldUseFlats(string key)
+        {
+            string[] flatKeys = { "F", "Bb", "Eb", "Ab", "Db", "Gb", "Cb" };
+            return flatKeys.Contains(key) || key.Contains("b");
+        }
+
+        private bool HasAugmentedFourth()
+        {
+            return m_NotesAndIntervals.Any(ni => ni.Interval.SemitonesFromRoot == 6);
+        }
+
+        private bool HasFlatThird()
+        {
+            return m_NotesAndIntervals.Any(ni => ni.Interval.SemitonesFromRoot == 3);
+        }
+
+
+        private bool HasFlatSeventh()
+        {
+            return m_NotesAndIntervals.Any(ni => ni.Interval.SemitonesFromRoot == 10);
         }
 
         private string GetProperNoteName(SingleNote note, string previousNoteName, string[] noteOrder, bool useSharps)

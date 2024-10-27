@@ -64,20 +64,24 @@ app.MapGet("/api/scale/notes", ([FromQuery] string key, [FromQuery] string scale
 })
 .WithName("GetScaleNotes");
 
-app.MapGet("/chord-of-scale-degree", (string key, string scale, int degree) =>
+app.MapGet("/api/chord-of-scale-degree", (string key, string scaleName, int degree) =>
 {
     try
     {
-        var (chord, chordName) = ChordDefinitions.GetChordOfScaleDegree(key, scale, degree);
+        var (chord, chordName) = ChordDefinitions.GetChordOfScaleDegree(key, scaleName, degree);
         var chordRoot = chord.NotesAndIntervals[0].Note.Note;
+
+        // Get the Roman numeral representation
+        string romanNumeral = ChordDefinitions.GetRomanNumeral(scaleName, degree, chordName);
 
         return Results.Ok(new
         {
             Key = key,
-            Scale = scale,
+            Scale = scaleName,
             Degree = degree,
             ChordRoot = chordRoot,
             ChordType = chordName,
+            RomanNumeral = romanNumeral,
             ChordNotes = chord.GetProperlyNamedNotes()
         });
     }

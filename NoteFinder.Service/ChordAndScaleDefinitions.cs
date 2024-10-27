@@ -320,6 +320,30 @@ namespace NoteFinder.Service.Definitions
             }
         }
 
+        public static string GetRomanNumeral(string scaleName, int degree, string chordType)
+        {
+            switch (scaleName.ToLower())
+            {
+                case "ionian":
+                case "major":
+                    return ChordRomanNumerals.GetIonianRomanNumeral(degree, chordType);
+                case "dorian":
+                    return ChordRomanNumerals.GetDorianRomanNumeral(degree, chordType);
+                case "phrygian":
+                    return ChordRomanNumerals.GetPhrygianRomanNumeral(degree, chordType);
+                case "lydian":
+                    return ChordRomanNumerals.GetLydianRomanNumeral(degree, chordType);
+                case "mixolydian":
+                    return ChordRomanNumerals.GetMixolydianRomanNumeral(degree, chordType);
+                case "aeolian":
+                case "minor":
+                    return ChordRomanNumerals.GetAeolianRomanNumeral(degree, chordType);
+                case "locrian":
+                    return ChordRomanNumerals.GetLocrianRomanNumeral(degree, chordType);
+                default:
+                    throw new ArgumentException("Unsupported scale type");
+            }
+        }
         public static (NoteCollection Chord, string ChordName) GetChordOfScaleDegree(string key, string scaleName, int degree)
         {
             // Get the scale intervals
@@ -334,8 +358,10 @@ namespace NoteFinder.Service.Definitions
             // Determine the chord type by walking up the scale
             IInterval[] chordIntervals = DetermineChordIntervals(scale, degree);
 
-            // Create and return the chord
+            // Create the chord
             NoteCollection chord = new NoteCollection(chordRoot, chordIntervals);
+
+            // Get the chord name
             string chordName = GetChordName(chordIntervals);
 
             return (chord, chordName);
@@ -350,47 +376,32 @@ namespace NoteFinder.Service.Definitions
             int fifth = GetIntervalFromRoot(scale, degree, 4);
             int seventh = GetIntervalFromRoot(scale, degree, 6);
 
-            // Determine the chord quality based on these intervals
-            if (third == 4 && fifth == 7) // Major triad
-            {
-                chordIntervals.Add(intervals.Major3rd);
+            // Add the third
+            chordIntervals.Add(third == 4 ? intervals.Major3rd : intervals.Minor3rd);
+
+            // Add the fifth
+            if (fifth == 7)
                 chordIntervals.Add(intervals.Perfect5th);
-                if (seventh == 11)
-                    chordIntervals.Add(intervals.Major7th);
-                else if (seventh == 10)
-                    chordIntervals.Add(intervals.Minor7th);
-            }
-            else if (third == 3 && fifth == 7) // Minor triad
-            {
-                chordIntervals.Add(intervals.Minor3rd);
-                chordIntervals.Add(intervals.Perfect5th);
-                if (seventh == 10)
-                    chordIntervals.Add(intervals.Minor7th);
-                else if (seventh == 11)
-                    chordIntervals.Add(intervals.Major7th);
-            }
-            else if (third == 3 && fifth == 6) // Diminished triad
-            {
-                chordIntervals.Add(intervals.Minor3rd);
+            else if (fifth == 6)
                 chordIntervals.Add(intervals.Tritone);
-                if (seventh == 9)
-                    chordIntervals.Add(intervals.Major6th); // Diminished 7th
-            }
-            else if (third == 4 && fifth == 8) // Augmented triad
-            {
-                chordIntervals.Add(intervals.Major3rd);
+            else if (fifth == 8)
                 chordIntervals.Add(intervals.Minor6th);
-                if (seventh == 10)
-                    chordIntervals.Add(intervals.Minor7th);
-            }
+
+            // Add the seventh if present
+            if (seventh == 10)
+                chordIntervals.Add(intervals.Minor7th);
+            else if (seventh == 11)
+                chordIntervals.Add(intervals.Major7th);
+            else if (seventh == 9)
+                chordIntervals.Add(intervals.Major6th); // Diminished 7th
 
             return chordIntervals.ToArray();
         }
-
         public static string GetChordName(IInterval[] chordIntervals)
         {
             var intervalSet = new HashSet<int>(chordIntervals.Select(i => i.SemitonesFromRoot));
 
+            if (intervalSet.SetEquals(new[] { 3, 6, 10 })) return "Half-Diminished7";
             if (intervalSet.SetEquals(new[] { 4, 7 })) return "Major";
             if (intervalSet.SetEquals(new[] { 3, 7 })) return "Minor";
             if (intervalSet.SetEquals(new[] { 4, 8 })) return "Augmented";
@@ -398,7 +409,6 @@ namespace NoteFinder.Service.Definitions
             if (intervalSet.SetEquals(new[] { 4, 7, 11 })) return "Major7";
             if (intervalSet.SetEquals(new[] { 3, 7, 10 })) return "Minor7";
             if (intervalSet.SetEquals(new[] { 4, 7, 10 })) return "Dominant7";
-            if (intervalSet.SetEquals(new[] { 3, 6, 10 })) return "Minor7b5";
             if (intervalSet.SetEquals(new[] { 3, 6, 9 })) return "Diminished7";
             if (intervalSet.SetEquals(new[] { 4, 7, 9 })) return "6";
             if (intervalSet.SetEquals(new[] { 3, 7, 9 })) return "Minor6";
@@ -409,8 +419,6 @@ namespace NoteFinder.Service.Definitions
             if (intervalSet.SetEquals(new[] { 3, 7, 10, 2, 5 })) return "Minor11";
             if (intervalSet.SetEquals(new[] { 4, 7, 10, 2, 5, 9 })) return "13";
             if (intervalSet.SetEquals(new[] { 3, 7, 10, 2, 5, 9 })) return "Minor13";
-
-            // Add more chord types as needed
 
             return "Unknown"; // If the chord doesn't match any known type
         }
