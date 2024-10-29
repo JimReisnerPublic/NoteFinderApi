@@ -96,12 +96,13 @@ namespace NoteFinder.Service.Definitions
             }
         }
 
-        public static IInterval[] Diminished
+
+        public static IInterval[] Diminished7
         {
             get
             {
                 return new IInterval[3] { m_Intervals.Minor3rd,
-                    m_Intervals.Tritone, m_Intervals.Major6th };
+                    m_Intervals.Tritone, m_Intervals.Diminished7 };
             }
         }
 
@@ -219,6 +220,16 @@ namespace NoteFinder.Service.Definitions
             }
         }
 
+        public static IInterval[] Major11
+        {
+            get
+            {
+                return new IInterval[5] { m_Intervals.Major3rd,
+            m_Intervals.Perfect5th, m_Intervals.Major7th,
+            m_Intervals.Major2nd, m_Intervals.Perfect4th };
+            }
+        }
+
         public static IInterval[] Minor13
         {
             get
@@ -228,6 +239,8 @@ namespace NoteFinder.Service.Definitions
                 m_Intervals.Major6th };
             }
         }
+
+
 
         public static IInterval[] Augmented7
         {
@@ -501,6 +514,12 @@ namespace NoteFinder.Service.Definitions
 
         public IInterval Major6th
         {
+            get { return m_Major6th; }
+        }
+
+        public IInterval Diminished7
+        {
+            //enharmonically the same as a major 6
             get { return m_Major6th; }
         }
 

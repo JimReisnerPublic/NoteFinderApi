@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using System.Net.Http.Headers;
 using NoteFinder.ExternalInfo.Service.Data;
 using NoteFinder.ExternalInfo.Service;
+using NoteFinder.Service.Definitions;
 
 
 var builder = WebApplication.CreateBuilder(args);
