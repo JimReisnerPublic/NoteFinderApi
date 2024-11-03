@@ -1,0 +1,4 @@
+C:\Users\jimre\source\repos\NoteFinder\NoteFinderApi
+
+docker build -t notefinderapi .
+docker run -d -p 8080:80 --name notefinderapi-container notefinderapi

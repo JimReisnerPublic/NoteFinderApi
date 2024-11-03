@@ -25,7 +25,9 @@ namespace NoteFinder.Helpers
                 "minor7" => ChordDefinitions.Minor7,
                 "dominant7" => ChordDefinitions.Dominant7,
                 "minor7flat5" => ChordDefinitions.Minor7Flat5,
+                "m7flat5" => ChordDefinitions.Minor7Flat5,
                 "diminished7" => ChordDefinitions.Diminished7,
+                "dim7" => ChordDefinitions.Diminished7,
                 "6" => ChordDefinitions.Six,
                 "minor6" => ChordDefinitions.MinorSix,
                 "major9" => ChordDefinitions.MajorNine,
@@ -65,6 +67,7 @@ namespace NoteFinder.Helpers
                 "mixolydian" => ScaleDefinitions.Mixolydian,
                 "aeolian" or "minor" => ScaleDefinitions.Aeolian,
                 "locrian" => ScaleDefinitions.Locrian,
+                "harmonicminor" => ScaleDefinitions.HarmonicMinor,
                 "pentatonicminor" => ScaleDefinitions.PentatonicMinor,
                 "pentatonicmajor" => ScaleDefinitions.PentatonicMajor,
                 _ => throw new ArgumentException("Invalid scale name")

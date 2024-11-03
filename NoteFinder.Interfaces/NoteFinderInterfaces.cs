@@ -35,7 +35,7 @@
             set;
         }
 
-        int ChromaticPosition
+        byte ChromaticPosition
         {
             get;
             set;

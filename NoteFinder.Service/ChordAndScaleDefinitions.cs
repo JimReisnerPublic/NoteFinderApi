@@ -353,6 +353,8 @@ namespace NoteFinder.Service.Definitions
                     return ChordRomanNumerals.GetAeolianRomanNumeral(degree, chordType);
                 case "locrian":
                     return ChordRomanNumerals.GetLocrianRomanNumeral(degree, chordType);
+                case "harmonicminor":
+                    return ChordRomanNumerals.GetHarmonicMinorRomanNumeral(degree, chordType);
                 default:
                     throw new ArgumentException("Unsupported scale type");
             }
@@ -695,6 +697,15 @@ namespace NoteFinder.Service.Definitions
             }
         }
 
+        public static IInterval[] HarmonicMinor
+        {
+            get
+            {
+                return new IInterval[6] { m_Intervals.Major2nd, m_Intervals.Minor3rd,
+                m_Intervals.Perfect4th, m_Intervals.Perfect5th,
+                m_Intervals.Minor6th, m_Intervals.Major7th};
+            }
+        }
         public static IInterval[] PentatonicMinor
         {
             get

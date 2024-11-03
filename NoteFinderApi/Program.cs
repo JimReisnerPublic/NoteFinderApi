@@ -38,15 +38,20 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "NoteFinder API V1");
+    c.RoutePrefix = string.Empty;  // Serve Swagger at the root URL
+});
 
 app.UseCors("AllowAll");
 
-app.UseHttpsRedirection();
+    //if (!app.Environment.IsDevelopment())
+    //{
+    //app.UseHttpsRedirection();
+    //}
 
 app.MapGet("/api/scale/notes", ([FromQuery] string key, [FromQuery] string scaleName) =>
 {
@@ -111,7 +116,9 @@ app.MapGet("/api/chord/notes", ([FromQuery] string key, [FromQuery] string chord
 
 app.MapGet("/api/scale/insights", async ([FromQuery] string key, [FromQuery] string scaleName, IApiService apiService) =>
 {
-    var perplexityApiKey = app.Configuration["PERPLEXITY_API_KEY"];
+    var perplexityApiKey = app.Configuration["PERPLEXITY_API_KEY"] ??
+    Environment.GetEnvironmentVariable("PERPLEXITY_API_KEY");
+
     if (string.IsNullOrEmpty(perplexityApiKey))
     {
         return Results.BadRequest("Perplexity API key not found in configuration.");

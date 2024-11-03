@@ -7,7 +7,7 @@ namespace NoteFinder.Service
     public class SingleNote : INote
     {
         string m_Note;
-        int m_ChromaticPosition;
+        byte m_ChromaticPosition;
         string m_FlatAlternativeName;
 
         //Default contructor for JSON serialization
@@ -21,7 +21,7 @@ namespace NoteFinder.Service
             m_ChromaticPosition = notePosition;
         }
 
-        public SingleNote(string noteName, int notePosition, string flatName)
+        public SingleNote(string noteName, byte notePosition, string flatName)
         {
             m_Note = noteName;
             m_ChromaticPosition = notePosition;
@@ -40,7 +40,7 @@ namespace NoteFinder.Service
             set { m_FlatAlternativeName = value; }
         }
 
-        public int ChromaticPosition
+        public byte ChromaticPosition
         {
             get { return m_ChromaticPosition; }
             set { m_ChromaticPosition = value; }
@@ -163,9 +163,7 @@ namespace NoteFinder.Service
 
         public NoteCollection(string key, IInterval[] intervals)
         {
-            var keyInterval = intervals.Where(x => x.IntervalName == "Root");
-
-            if (keyInterval.Count() == 0)
+            if (!intervals.Any(x => x.IntervalName == "Root"))
             {
                 AddRootToNoteCollection(key);
             }
@@ -173,57 +171,36 @@ namespace NoteFinder.Service
             foreach (SingleInterval thisInterval in intervals)
             {
                 SingleNote thisNote = m_ChromaticNotes.ReturnInterval(key, thisInterval.SemitonesFromRoot);
-                NoteAndInterval thisNoteAndInterval = new NoteAndInterval();
-                thisNoteAndInterval.Note = thisNote;
-                thisNoteAndInterval.Interval = thisInterval;
-                m_NotesAndIntervals.Add(thisNoteAndInterval);
+                m_NotesAndIntervals.Add(new NoteAndInterval { Note = thisNote, Interval = thisInterval });
             }
 
             SetProperlyNamedNotes(key);
         }
 
-        private string NormalizeToSharp(string note)
+        private void AddRootToNoteCollection(string key)
         {
-            var flatToSharp = new Dictionary<string, string>
-            {
-                {"Db", "C#"}, {"Eb", "D#"}, {"Gb", "F#"}, {"Ab", "G#"}, {"Bb", "A#"}
-            };
-
-            return flatToSharp.ContainsKey(note) ? flatToSharp[note] : note;
+            SingleNote rootNote = new SingleNote(key, 0, "");
+            SingleInterval rootInterval = new SingleInterval("Root", "I", 0);
+            m_NotesAndIntervals.Add(new NoteAndInterval { Note = rootNote, Interval = rootInterval });
         }
 
-        private string NormalizeToFlat(string note)
+        public List<NoteAndInterval> NotesAndIntervals
         {
-            var sharpToFlat = new Dictionary<string, string>
-            {
-                {"C#", "Db"}, {"D#", "Eb"}, {"F#", "Gb"}, {"G#", "Ab"}, {"A#", "Bb"}
-            };
-
-            return sharpToFlat.ContainsKey(note) ? sharpToFlat[note] : note;
+            get { return m_NotesAndIntervals; }
         }
 
-        private bool UseSharps(string key)
+        public List<string> GetProperlyNamedNotes()
         {
-            string[] sharpKeys = { "G", "D", "A", "E", "B", "F#", "C#" };
-            return sharpKeys.Contains(key) || key.Contains("#");
+            return m_NotesAndIntervals.Select(ni => ni.Note.Note).ToList();
         }
 
-        private static string CapitalizeFirstLetter(string input)
-        {
-            if (string.IsNullOrEmpty(input))
-            {
-                return string.Empty;
-            }
-            return char.ToUpper(input[0]) + input.Substring(1);
-        }
-        public void SetProperlyNamedNotes(string key)
+        private void SetProperlyNamedNotes(string key)
         {
             bool useFlats = ShouldUseFlats(key);
             string[] noteOrder = useFlats
                 ? new[] { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" }
                 : new[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 
-            // Normalize key to either sharp or flat as appropriate
             string normalizedKey = useFlats ? NormalizeToFlat(key) : NormalizeToSharp(key);
             int keyIndex = Array.IndexOf(noteOrder, normalizedKey);
 
@@ -234,81 +211,40 @@ namespace NoteFinder.Service
 
             for (int i = 0; i < m_NotesAndIntervals.Count; i++)
             {
-                var currentNote = m_NotesAndIntervals[i].Note;
                 int noteIndex = (keyIndex + m_NotesAndIntervals[i].Interval.SemitonesFromRoot) % 12;
-
-                if (noteIndex < 0 || noteIndex >= noteOrder.Length)
-                {
-                    throw new IndexOutOfRangeException("Calculated note index is out of range.");
-                }
-
                 string properNoteName = noteOrder[noteIndex];
-                m_NotesAndIntervals[i].Note = new SingleNote(properNoteName, currentNote.ChromaticPosition, currentNote.FlatAlternativeName);
+                m_NotesAndIntervals[i].Note = new SingleNote(properNoteName, m_NotesAndIntervals[i].Note.ChromaticPosition);
             }
         }
+
         private bool ShouldUseFlats(string key)
         {
             string[] flatKeys = { "F", "Bb", "Eb", "Ab", "Db", "Gb", "Cb" };
-            return flatKeys.Contains(key) || key.Contains("b");
+            return flatKeys.Contains(key) || key.Contains("b") || HasFlatThird() || HasFlatSeventh();
         }
 
-        private bool HasAugmentedFourth()
+        private bool HasFlatThird() => m_NotesAndIntervals.Any(ni => ni.Interval.SemitonesFromRoot == 3);
+
+        private bool HasFlatSeventh() => m_NotesAndIntervals.Any(ni => ni.Interval.SemitonesFromRoot == 10);
+
+        private string NormalizeToSharp(string note)
         {
-            return m_NotesAndIntervals.Any(ni => ni.Interval.SemitonesFromRoot == 6);
+            var flatToSharp = new Dictionary<string, string>
+        {
+            {"Db", "C#"}, {"Eb", "D#"}, {"Gb", "F#"}, {"Ab", "G#"}, {"Bb", "A#"}
+        };
+
+            return flatToSharp.ContainsKey(note) ? flatToSharp[note] : note;
         }
 
-        private bool HasFlatThird()
+        private string NormalizeToFlat(string note)
         {
-            return m_NotesAndIntervals.Any(ni => ni.Interval.SemitonesFromRoot == 3);
-        }
-
-
-        private bool HasFlatSeventh()
+            var sharpToFlat = new Dictionary<string, string>
         {
-            return m_NotesAndIntervals.Any(ni => ni.Interval.SemitonesFromRoot == 10);
-        }
+            {"C#", "Db"}, {"D#", "Eb"}, {"F#", "Gb"}, {"G#", "Ab"}, {"A#", "Bb"}
+        };
 
-        private string GetProperNoteName(SingleNote note, string previousNoteName, string[] noteOrder, bool useSharps)
-        {
-            int previousIndex = Array.IndexOf(noteOrder, previousNoteName[0].ToString());
-            int currentIndex = (previousIndex + 1) % 7;
-
-            string baseName = noteOrder[currentIndex];
-
-            if (note.ChromaticPosition != Array.IndexOf(noteOrder, baseName))
-            {
-                if (useSharps)
-                {
-                    return baseName + "#";
-                }
-                else
-                {
-                    int flatIndex = (currentIndex + 1) % 7;
-                    return noteOrder[flatIndex] + "b";
-                }
-            }
-
-            return baseName;
-        }
-
-        public List<NoteAndInterval> NotesAndIntervals
-        {
-            get { return m_NotesAndIntervals; }
-        }
-
-        private void AddRootToNoteCollection(string key)
-        {
-            SingleNote rootNote = new SingleNote(key, 0, "");
-            SingleInterval rootInterval = new SingleInterval("Root", "I", 0);
-            NoteAndInterval rootNoteAndInterval = new NoteAndInterval();
-            rootNoteAndInterval.Note = rootNote;
-            rootNoteAndInterval.Interval = rootInterval;
-            m_NotesAndIntervals.Add(rootNoteAndInterval);
-        }
-
-        public List<string> GetProperlyNamedNotes()
-        {
-            return m_NotesAndIntervals.Select(ni => ni.Note.Note).ToList();
+            return sharpToFlat.ContainsKey(note) ? sharpToFlat[note] : note;
         }
     }
 

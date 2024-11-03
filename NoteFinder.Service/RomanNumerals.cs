@@ -101,5 +101,18 @@ namespace NoteFinder.Service.Definitions
                 _ => chordType.Contains("Diminished") ? "#vii°" : "#vii"
             };
         }
+
+        public static string GetHarmonicMinorRomanNumeral(int degree, string chordType)
+        {
+            string[] romanNumerals = { "i", "ii°", "III+", "iv", "V", "VI", "vii°" };
+            string roman = romanNumerals[degree - 1];
+
+            if (chordType.Contains("7"))
+            {
+                roman += "7";
+            }
+
+            return roman;
+        }
     }
 }
