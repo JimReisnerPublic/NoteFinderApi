@@ -25,12 +25,13 @@ WORKDIR /app
 # Copy the published output from the build stage
 COPY --from=build /app/publish .
 
-# Expose both HTTP (80) and HTTPS (443) ports
+# Expose only HTTP port
 EXPOSE 80
-EXPOSE 443
 
-# Set environment variable to expose app on port 80 (HTTP) and 443 (HTTPS)
-ENV ASPNETCORE_URLS="http://+:80;https://+:443"
-ENV ASPNETCORE_ENVIRONMENT="Development"
+# Set environment variable to expose app on port 80 (HTTP)
+ENV ASPNETCORE_URLS="http://+:80"
+
+# The environment should be set when deploying, not in the Dockerfile
+# ENV ASPNETCORE_ENVIRONMENT="Production"
 
 ENTRYPOINT ["dotnet", "NoteFinderApi.dll"]

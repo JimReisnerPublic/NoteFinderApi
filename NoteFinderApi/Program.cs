@@ -43,7 +43,7 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "NoteFinder API V1");
-    c.RoutePrefix = string.Empty;  // Serve Swagger at the root URL
+    c.RoutePrefix = string.Empty;
 });
 
 app.UseCors("AllowAll");

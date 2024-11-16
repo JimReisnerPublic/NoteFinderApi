@@ -1,4 +1,25 @@
+Subscription:
+NoteFinder_PayAsYouGo
+
+az group create --name fretboard-resource-group --location centralus
+
+az acr create --resource-group fretboard-resource-group --name fretboardregistry --sku Basic
+
+az containerapp env create --name fretboard-env --resource-group fretboard-resource-group --location centralus
+
+az provider register -n Microsoft.OperationalInsights --wait
+
+az provider show -n Microsoft.OperationalInsights -o table
+az provider show -n Microsoft.App -o table
+
+az acr login --name fretboardregistry
+
+
+docker build -t fretboard-backend .
+docker run -p 8080:80 fretboard-backend
+
+az containerapp up --name fretboard-backend --resource-group fretboard-resource-group --environment fretboard-env --registry-server fretboardregistry.azurecr.io --registry-username "fretboardregistry" --registry-password "SiBCpfnvkAfgjsNgAosP/6eIM0fOoBXfpDRx9TUoBT+ACRCfBWMD" --source . --ingress external --target-port 80
+
+  --resource-group fretboard-resource-group --set-env-vars "PERPLEXITY_API_KEY=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"
 C:\Users\jimre\source\repos\NoteFinder\NoteFinderApi
 
-docker build -t notefinderapi .
-docker run -d -p 8080:80 --name notefinderapi-container notefinderapi

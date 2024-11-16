@@ -26,6 +26,7 @@ namespace NoteFinder.Helpers
                 "dominant7" => ChordDefinitions.Dominant7,
                 "minor7flat5" => ChordDefinitions.Minor7Flat5,
                 "m7flat5" => ChordDefinitions.Minor7Flat5,
+                "m7b5" => ChordDefinitions.Minor7Flat5,
                 "diminished7" => ChordDefinitions.Diminished7,
                 "dim7" => ChordDefinitions.Diminished7,
                 "6" => ChordDefinitions.Six,
