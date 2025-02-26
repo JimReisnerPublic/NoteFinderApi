@@ -87,6 +87,16 @@ namespace NoteFinder.Service.Definitions
             }
         }
 
+        public static IInterval[] Dominant11
+        {
+            get
+            {
+                return new IInterval[5] { m_Intervals.Major3rd,
+                    m_Intervals.Perfect5th, m_Intervals.Minor7th,
+                m_Intervals.Major2nd, m_Intervals.Perfect4th};
+            }
+        }
+
         public static IInterval[] Minor7Flat5
         {
             get
@@ -154,15 +164,6 @@ namespace NoteFinder.Service.Definitions
             }
         }
 
-        public static IInterval[] Dominant11
-        {
-            get
-            {
-                return new IInterval[5] { m_Intervals.Major3rd,
-            m_Intervals.Perfect5th, m_Intervals.Minor7th,
-            m_Intervals.Major2nd, m_Intervals.Perfect4th };
-            }
-        }
 
         public static IInterval[] Major13
         {

@@ -24,6 +24,8 @@ namespace NoteFinder.Helpers
                 "major7" => ChordDefinitions.Major7,
                 "minor7" => ChordDefinitions.Minor7,
                 "dominant7" => ChordDefinitions.Dominant7,
+                "dominant7b5" => ChordDefinitions.Dominant7b5,
+                "dominant11" => ChordDefinitions.Dominant11,
                 "minor7flat5" => ChordDefinitions.Minor7Flat5,
                 "m7flat5" => ChordDefinitions.Minor7Flat5,
                 "m7b5" => ChordDefinitions.Minor7Flat5,

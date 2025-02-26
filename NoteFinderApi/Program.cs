@@ -16,7 +16,7 @@ using NoteFinder.Service.Definitions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 builder.Services.AddHttpClient();
@@ -34,6 +34,22 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "NoteFinder API",
+        Version = "v1",
+        Description = "An API for music theory operations including scales, chords, and insights."
+    });
+
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    Console.WriteLine($"XML Path: {Path.GetFullPath(xmlPath)}"); // Debug line!
+    c.IncludeXmlComments(xmlPath);
+});
+
+
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 var app = builder.Build();
@@ -46,13 +62,20 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = string.Empty;
 });
 
+
+
+
 app.UseCors("AllowAll");
 
-    //if (!app.Environment.IsDevelopment())
-    //{
-    //app.UseHttpsRedirection();
-    //}
 
+/// <summary>
+/// Retrieves the notes of a given scale in a specific key.
+/// </summary>
+/// <param name="key">The root note of the scale (e.g., C, F#, Bb)</param>
+/// <param name="scaleName">The name of the scale (e.g., Major, Minor, Dorian)</param>
+/// <returns>A collection of notes in the specified scale</returns>
+/// <response code="200">Returns the collection of notes in the scale</response>
+/// <response code="400">If the key or scale name is invalid</response>
 app.MapGet("/api/scale/notes", ([FromQuery] string key, [FromQuery] string scaleName) =>
 {
     try
@@ -68,8 +91,19 @@ app.MapGet("/api/scale/notes", ([FromQuery] string key, [FromQuery] string scale
         return Results.BadRequest($"Error: {ex.Message}");
     }
 })
-.WithName("GetScaleNotes");
+.WithName("GetScaleNotes")
+.Produces<NoteCollection>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status400BadRequest);
 
+/// <summary>
+/// Retrieves the chord of a specific scale degree in a given key and scale.
+/// </summary>
+/// <param name="key">The root note of the scale (e.g., C, F#, Bb)</param>
+/// <param name="scaleName">The name of the scale (e.g., Major, Minor, Dorian)</param>
+/// <param name="degree">The scale degree (1-7) to get the chord for</param>
+/// <returns>Information about the chord, including its root, type, and notes</returns>
+/// <response code="200">Returns the chord information</response>
+/// <response code="400">If the parameters are invalid</response>
 app.MapGet("/api/chord-of-scale-degree", (string key, string scaleName, int degree) =>
 {
     try
@@ -95,8 +129,19 @@ app.MapGet("/api/chord-of-scale-degree", (string key, string scaleName, int degr
     {
         return Results.BadRequest(ex.Message);
     }
-});
+})
+.WithName("GetChordOfScaleDegree")
+.Produces<object>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status400BadRequest);
 
+/// <summary>
+/// Retrieves the notes of a specific chord in a given key.
+/// </summary>
+/// <param name="key">The root note of the chord (e.g., C, F#, Bb)</param>
+/// <param name="chordName">The name of the chord (e.g., Major, Minor, Dominant7)</param>
+/// <returns>A collection of notes in the specified chord</returns>
+/// <response code="200">Returns the collection of notes in the chord</response>
+/// <response code="400">If the key or chord name is invalid</response>
 app.MapGet("/api/chord/notes", ([FromQuery] string key, [FromQuery] string chordName) =>
 {
     try
@@ -112,8 +157,19 @@ app.MapGet("/api/chord/notes", ([FromQuery] string key, [FromQuery] string chord
         return Results.BadRequest($"Error: {ex.Message}");
     }
 })
-.WithName("GetChordNotes");
+.WithName("GetChordNotes")
+.Produces<NoteCollection>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status400BadRequest);
 
+/// <summary>
+/// Retrieves musical insights about a specific scale in a given key.
+/// </summary>
+/// <param name="key">The root note of the scale (e.g., C, F#, Bb)</param>
+/// <param name="scaleName">The name of the scale (e.g., Major, Minor, Dorian)</param>
+/// <param name="apiService">The API service for external data retrieval</param>
+/// <returns>JSON string containing musical insights about the scale</returns>
+/// <response code="200">Returns the musical insights</response>
+/// <response code="400">If there's an error in retrieving the insights</response>
 app.MapGet("/api/scale/insights", async ([FromQuery] string key, [FromQuery] string scaleName, IApiService apiService) =>
 {
     var perplexityApiKey = app.Configuration["PERPLEXITY_API_KEY"] ??
@@ -164,6 +220,8 @@ app.MapGet("/api/scale/insights", async ([FromQuery] string key, [FromQuery] str
         return Results.BadRequest($"Error: {ex.Message}");
     }
 })
-.WithName("GetScaleInsights");
+.WithName("GetScaleInsights")
+.Produces<string>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status400BadRequest);
 
 app.Run();
