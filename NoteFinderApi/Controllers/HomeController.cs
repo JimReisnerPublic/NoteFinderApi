@@ -57,7 +57,7 @@ namespace NoteFinderApi.Controllers
         [HttpGet("insights")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetScaleNotes([FromQuery] string key, [FromQuery] string scaleName)
+        public async Task<IActionResult> GetScaleInsights([FromQuery] string key, [FromQuery] string scaleName)
         {
             var perplexityApiKey = _configuration["PERPLEXITY_API_KEY"] ??
                                     Environment.GetEnvironmentVariable("PERPLEXITY_API_KEY");
