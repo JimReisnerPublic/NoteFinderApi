@@ -49,10 +49,10 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseHttpsRedirection();
-app.UseRouting(); // Make sure routing is enabled
+app.UseRouting(); 
 
 app.UseCors("AllowAll");
 
-app.MapControllers(); // Add this line to map the controllers
+app.MapControllers(); 
 
 app.Run();

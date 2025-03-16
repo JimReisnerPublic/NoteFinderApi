@@ -15,7 +15,7 @@ namespace YNoteFinderApi.Controllers
         /// </summary>
         /// <param name="key">The root note of the scale (e.g., C, F#, Bb)</param>
         /// <param name="scaleName">The name of the scale (e.g., Major, Minor, Dorian)</param>
-        /// <param name="degree">The scale degree (1-7) to get the chord for</param>
+        /// <param name="degree">The scale degree (1-7) to get the chord for </param>
         /// <returns>Information about the chord, including its root, type, and notes</returns>
         /// <response code="200">Returns the chord information</response>
         /// <response code="400">If the parameters are invalid</response>
@@ -24,7 +24,7 @@ namespace YNoteFinderApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult GetChordOfScaleDegree([FromQuery] string key, [FromQuery] string scaleName, [FromQuery] int degree)
         {
-            try
+            try 
             {
                 var (chord, chordName) = ChordDefinitions.GetChordOfScaleDegree(key, scaleName, degree);
                 var chordRoot = chord.NotesAndIntervals[0].Note.Note;
