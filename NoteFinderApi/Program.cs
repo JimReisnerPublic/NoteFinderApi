@@ -15,6 +15,7 @@ using NoteFinder.Service.Definitions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers(); // Add this line
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -49,7 +50,6 @@ builder.Services.AddSwaggerGen(c =>
     c.IncludeXmlComments(xmlPath);
 });
 
-
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
 var app = builder.Build();
@@ -67,6 +67,7 @@ app.UseSwaggerUI(c =>
 
 app.UseCors("AllowAll");
 
+app.MapControllers(); // Add this line to map the controllers
 
 /// <summary>
 /// Retrieves the notes of a given scale in a specific key.
