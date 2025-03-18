@@ -22,28 +22,30 @@ namespace NoteFinderTests
 
         public IntegrationTestBase()
         {
-            _client = CreateClient();
             var configBuilder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables();
+
             Configuration = configBuilder.Build();
+
+            _client = CreateClient(new WebApplicationFactoryClientOptions
+            {
+                BaseAddress = new Uri(Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:7095")
+            });
         }
 
         protected override IHost CreateHost(IHostBuilder builder)
         {
             builder.ConfigureAppConfiguration(config =>
             {
-                config.AddInMemoryCollection(new Dictionary<string, string>
-                {
-                    ["PERPLEXITY_API_KEY"] = "testapikey", // Override the API key for testing
-                    ["ScaleInsightsPrompt:0"] = "Test prompt line 1",
-                    ["ScaleInsightsPrompt:1"] = "Test prompt line 2"
-                });
+                config.AddConfiguration(Configuration);
             });
 
             return base.CreateHost(builder);
         }
     }
+
 
     public class NoteFinderControllerTests : IntegrationTestBase
     {
@@ -67,7 +69,9 @@ namespace NoteFinderTests
         public async Task GetChordOfScaleDegree_ReturnsCorrectChord()
         {
             // Arrange
-            var request = "/api/chord-of-scale-degree?key=C&scaleName=ionian&degree=1";
+            //var request = "/api/chord-of-scale-degree?key=C&scaleName=ionian&degree=1";
+            var request = "/api/chord/chord-of-scale-degree?key=C&scaleName=ionian&degree=1";
+
 
             // Act
             var response = await _client.GetAsync(request);

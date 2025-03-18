@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "NoteFinder.Service/1.0.0": {
+        "dependencies": {
+          "NoteFinder.Interfaces": "1.0.0"
+        },
+        "runtime": {
+          "NoteFinder.Service.dll": {}
+        }
+      },
+      "NoteFinder.Interfaces/1.0.0": {
+        "runtime": {
+          "NoteFinder.Interfaces.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "NoteFinder.Service/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "NoteFinder.Interfaces/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
