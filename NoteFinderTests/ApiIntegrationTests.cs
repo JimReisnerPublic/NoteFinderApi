@@ -47,8 +47,17 @@ namespace NoteFinderTests
     }
 
 
-    public class NoteFinderControllerTests : IntegrationTestBase
+    public class NoteFinderControllerTests
     {
+        private readonly HttpClient _client;
+
+        public NoteFinderControllerTests()
+        {
+            _client = new HttpClient
+            {
+                BaseAddress = new Uri("http://localhost:7095")
+            };
+        }
         [Fact]
         public async Task GetScaleNotes_ReturnsCorrectNotes()
         {
