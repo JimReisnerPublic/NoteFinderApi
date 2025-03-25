@@ -3,13 +3,24 @@ using NoteFinder.Helpers;
 using NoteFinder.Interfaces;
 using NoteFinder.Service;
 using NoteFinder.Service.Definitions;
+using Swashbuckle.AspNetCore.Filters;
 
-namespace YNoteFinderApi.Controllers
+namespace NoteFinderApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class ChordController : ControllerBase
     {
+        public class ChordOfScaleDegreeResponse
+        {
+            public string Key { get; set; }
+            public string Scale { get; set; }
+            public int Degree { get; set; }
+            public string ChordRoot { get; set; }
+            public string ChordType { get; set; }
+            public string RomanNumeral { get; set; }
+            public string[] ChordNotes { get; set; }
+        }
         /// <summary>
         /// Retrieves the chord of a specific scale degree in a given key and scale.
         /// </summary>
@@ -20,7 +31,7 @@ namespace YNoteFinderApi.Controllers
         /// <response code="200">Returns the chord information</response>
         /// <response code="400">If the parameters are invalid</response>
         [HttpGet("chord-of-scale-degree")]
-        [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ChordOfScaleDegreeResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult GetChordOfScaleDegree([FromQuery] string key, [FromQuery] string scaleName, [FromQuery] int degree)
         {
@@ -74,4 +85,6 @@ namespace YNoteFinderApi.Controllers
             }
         }
     }
+
+
 }

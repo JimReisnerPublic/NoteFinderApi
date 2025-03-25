@@ -11,6 +11,8 @@ using System.Net.Http.Headers;
 using NoteFinder.ExternalInfo.Service.Data;
 using NoteFinder.ExternalInfo.Service;
 using NoteFinder.Service.Definitions;
+using Swashbuckle.AspNetCore.Filters;
+using NoteFinderApi.Controllers;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,6 +51,7 @@ builder.Services.AddSwaggerGen(c =>
     Console.WriteLine($"XML Path: {Path.GetFullPath(xmlPath)}"); // Debug line!
     c.IncludeXmlComments(xmlPath);
 });
+builder.Services.AddSwaggerExamplesFromAssemblyOf<ChordController>();
 
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
