@@ -23,15 +23,12 @@ A Perplexity API key (for the scale insights feature)
 Installation
 Clone the repository:
 
-text
 git clone https://github.com/yourusername/NoteFinder.git
 Navigate to the project directory:
 
-text
 cd NoteFinder
 Create your appsettings.json file from the template:
 
-text
 cp appsettings.template.json appsettings.json
 Add your Perplexity API key to the appsettings.json file or set it as an environment variable:
 
@@ -39,11 +36,9 @@ json
 "PERPLEXITY_API_KEY": "your-api-key-here"
 Build the project:
 
-text
 dotnet build
 Run the project:
 
-text
 dotnet run
 The API will be available at https://localhost:7095.
 
@@ -86,7 +81,7 @@ scaleName (string): The name of the scale (e.g., Major, Minor, Dorian)
 degree (int): The scale degree (1-7) to get the chord for
 
 Get Chord Notes
-text
+
 GET /api/Chord/notes?key={key}&chordName={chordName}
 Returns a collection of notes in the specified chord.
 
